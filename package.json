@@ -1,0 +1,17 @@
+{
+  "name": "telehash-transport-ble-central-cordova",
+  "version": "0.0.4",
+  "description": "repository of middlewares for telehash-core",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "NODE_PATH=. node scripts/build.js",
+    "publish": "NODE_PATH=. node scripts/publish.js"
+  },
+  "author": "Ryan Bennett",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+    "cordova-plugin-ble": "^1.3.1"
+  }
+}

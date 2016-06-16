@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "serialport": "^3.1.2"
+  },
+  "name": "telehash-transport-serial-host-node-package.json",
+  "version": "0.0.3"
+}
