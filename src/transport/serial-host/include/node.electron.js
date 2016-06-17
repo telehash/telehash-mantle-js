@@ -19,7 +19,7 @@ const defaultOpts = {
 
 
 
-export const SerialHost = (SerialPort, list) => (opts) = (Mesh, th) => {
+export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
   let mesh = Mesh._mesh;
   var ignore = new Set();
   var opts = {};
