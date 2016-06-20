@@ -30,17 +30,18 @@ class BLEStream extends Duplex {
     this._transmit = transmit;
     this._readbuf = [];
     this.__read = false;
+    this.buffer = []
     
     receive.on('read', (data) => {
-      if (data.length > 1) {
-        if (this.__read) this.push(data)
-        else this._readbuf.push(data)
-      }
+      if (data.length > 4) this.emit('data',data)
     });
 
     peripheral.once('disconnect', () => {
       this.end()
     })
+    receive.notify(true, function(err) {
+     // console.log('notify', err);
+    });
   }
 
   _read(){
@@ -52,6 +53,31 @@ class BLEStream extends Duplex {
 
   _write(data, enc, cb){
     this._transmit.write(data, false, cb)
+
+    //  console.log('buffering ', data);
+    if (!Buffer.isBuffer(data)) {
+      data = new Buffer(data);
+    }
+    this.buffer.push(data);
+    if(this.buffer.length > 1) return;
+    if(!this.transmit) return;
+
+    const sender = () =>
+    {
+      if(!(data = this.buffer.shift())) return cb();
+      console.log('ble_write', data);
+      this.transmit.write(data, false, function(err){
+        if(err)
+        {
+          this.up = false;
+          this.emit('down');
+          return;
+        }
+        setTimeout(sender,1);
+      });
+    }
+
+    sender();
   }
 }
 
@@ -66,8 +92,8 @@ const defaultOpts = {
   ]
 }
 
-export const BleCentral = (_opts) => (Mesh, th) => {
-  //th.util_sys_logging(0);
+const BleCentral = (_opts) => (Mesh, th) => {
+  th.util_sys_logging(1);
   var opts = {};
 
   let FRAME_SIZE = 20;
@@ -88,15 +114,16 @@ export const BleCentral = (_opts) => (Mesh, th) => {
           return;
         console.log("RETURNED")
         opts.devices.some((dev) => {
-          console.log("SOME", new Buffer(dev.manufacturerData, "hex"))
 
-          if (dev.manufacturerData === mdata.toString("hex")){
+          if (dev.manufacturer_data === mdata.toString("hex")){
+            console.log()
             peripheral.connect(function(err) {
               // Discover services and characteristics
               peripheral.discoverSomeServicesAndCharacteristics( 
                 [dev.service_uuid],
-                [dev.transmit_characeristic_uuid,dev.receive_characteristic_uuid], 
+                [dev.transmit_characteristic_uuid,dev.receive_characteristic_uuid], 
                 function(err, services, characteristics){
+                  console.log("got ")
                   var transmit, receive;
 
                   characteristics.forEach(function(characteristic) {
@@ -108,6 +135,7 @@ export const BleCentral = (_opts) => (Mesh, th) => {
                   })
 
                   if (transmit && receive){
+                    console.log("got tx/rx")
                     Mesh.frames(new BLEStream(peripheral, transmit, receive), FRAME_SIZE);   
                   } else {
                     peripheral.disconnect();
@@ -130,3 +158,5 @@ export const BleCentral = (_opts) => (Mesh, th) => {
     }
   }
 }
+
+export {BleCentral as default}
