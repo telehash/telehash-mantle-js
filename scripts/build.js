@@ -1,3 +1,5 @@
+'use strict';
+
 var jetpack = require("fs-jetpack")
 var path = require("path");
 
@@ -29,10 +31,12 @@ function DO(){
       version[2]++;
       console.log("!",version)
       version = version.join(".")
-      var pkg = Object.assign(master, src.read(p, 'json'), {
+      var pkg = Object.assign({},master, src.read(p, 'json'), {
         name : "telehash-" + _path.join('-'),
         version : version,
-        devDependencies : {}
+        devDependencies : {},
+        scripts : {},
+        readme : "see https://github.com/telehash/telehash-mantle-js"
       })
 
       _path.push("package.json")
@@ -40,7 +44,9 @@ function DO(){
       src.write("../package.json", Object.assign(master, {version : version}))
 
       let inj = Object.assign(_inj, {
-        version : version
+        version : version,
+        scripts : {},
+        devDependencies : {}
       })
       src.write(p, inj)
       dist.write(p, inj)
@@ -72,9 +78,17 @@ function DO(){
   })
 }
 function watch(){
-  let watcher = chokidar.watch('./src/**', {}).on('change', (event, path) => {
+  var watcher = chokidar.watch('./src/**', {}).on('change', (event, path) => {
     watcher.close();
     DO().then(watch)
   });
 }
-DO().then(watch)
+if (require.main === module) {
+    console.log('called directly');
+    DO().then(watch).catch(e => console.log(e))
+} else {
+    console.log('required as a module');
+    module.exports = DO;
+}
+
+
