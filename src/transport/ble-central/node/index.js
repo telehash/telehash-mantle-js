@@ -30,7 +30,6 @@ class BLEStream extends Duplex {
     this._transmit = transmit;
     this._readbuf = [];
     this.__read = false;
-    this.buffer = []
     
     receive.on('read', (data) => {
       if (data.length > 4) this.emit('data',data)
@@ -52,32 +51,11 @@ class BLEStream extends Duplex {
   }
 
   _write(data, enc, cb){
-    this._transmit.write(data, false, cb)
-
-    //  console.log('buffering ', data);
-    if (!Buffer.isBuffer(data)) {
-      data = new Buffer(data);
-    }
-    this.buffer.push(data);
-    if(this.buffer.length > 1) return;
-    if(!this.transmit) return;
-
-    const sender = () =>
-    {
-      if(!(data = this.buffer.shift())) return cb();
-      console.log('ble_write', data);
-      this.transmit.write(data, false, function(err){
-        if(err)
-        {
-          this.up = false;
-          this.emit('down');
-          return;
-        }
-        setTimeout(sender,1);
-      });
-    }
-
-    sender();
+    // TERRIBLE HACK, write with ack when meta frame detected
+    var zeros = new Buffer(8);
+    zeros.fill(0);
+    var noack = (zeros.compare(data,9,16) == 0)?false:true;
+    this._transmit.write(data, noack, cb)
   }
 }
 
