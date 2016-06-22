@@ -72,6 +72,10 @@ function DO(){
             // output format - 'amd', 'cjs', 'es6', 'iife', 'umd'
             format: 'cjs'
           });
+          var es6 = bundle.generate({
+            format: 'es'
+          })
+          dist.write( p.substr(0, p.length - 3) + ".es6.js", es6.code )
           dist.write( p, result.code );
       })
     }))
