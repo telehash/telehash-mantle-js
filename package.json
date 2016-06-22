@@ -1,8 +1,9 @@
 {
   "name": "telehash-mantle-js",
-  "version": "0.0.15",
+  "version": "0.0.18",
   "description": "repository of middlewares for telehash-core",
   "main": "index.js",
+  "jsnext:main": "index.es6.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_PATH=. node scripts/build.js",
@@ -12,11 +13,18 @@
   "license": "ISC",
   "devDependencies": {
     "chokidar": "^1.5.2",
-    "fs-jetpack": "^0.9.1",
     "keytar": "^3.0.2",
     "noble": "^1.6.0",
     "rollup": "^0.31.2",
     "serial-worker": "^1.0.5",
     "serialport": "^3.1.2"
+  },
+  "dependencies": {
+    "fs-jetpack": "^0.9.1",
+    "minimist": "^1.2.0",
+    "rollup": "^0.32.0",
+    "rollup-plugin-commonjs": "^3.0.0",
+    "rollup-plugin-node-resolve": "^1.7.0",
+    "rollup-plugin-string": "^2.0.0"
   }
 }
