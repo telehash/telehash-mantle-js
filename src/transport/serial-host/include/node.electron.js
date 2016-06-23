@@ -42,18 +42,13 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
           if (err) return;
           ports.filter(filterPort)
                .forEach((port) => {
-                  console.log("PORT",port)
                   let config = opts.vendors[port.vendorId][port.productId];
                   
                   var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
-                    console.log("ERR",err)
                     if(err) return;
-                    console.log("SOCK", sock)
-                    Mesh[config.type](sock, config.size);
                   });
 
                   sock.on('open', (err) => {
-                    console.log("SOCK", sock)
                     Mesh[config.type](sock, config.size);
                   })
                 })
