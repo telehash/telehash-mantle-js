@@ -2,7 +2,8 @@
   "dependencies": {
     "noble": "^1.6.0"
   },
-  "version": "0.0.3",
+  "version": "0.0.8",
   "scripts": {},
+  "external": ["noble"],
   "devDependencies": {}
 }

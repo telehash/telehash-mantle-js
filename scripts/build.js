@@ -2,6 +2,7 @@
 
 var jetpack = require("fs-jetpack")
 var path = require("path");
+var fs = require("fs")
 
 var src = jetpack.cwd(path.join(process.env.NODE_PATH, 'src'))
 var dist = jetpack.cwd(path.join(process.env.NODE_PATH, 'dist'));
@@ -36,6 +37,7 @@ function DO(){
         version : version,
         devDependencies : {},
         scripts : {},
+        bin : {},
         readme : "see https://github.com/telehash/telehash-mantle-js"
       })
 
@@ -57,10 +59,9 @@ function DO(){
     },{});
     console.log(injections)
   }).then(() => {
-    
     return Promise.all(src.find(".",{matching : "index.js"}).map((p) => {
       console.log(src.path(p))
-        return rollup.rollup({
+      return rollup.rollup({
         // The bundle's starting point. This file will be
         // included, along with the minimum necessary code
         // from its dependencies
@@ -77,6 +78,8 @@ function DO(){
           })
           dist.write( p.substr(0, p.length - 3) + ".es6.js", es6.code )
           dist.write( p, result.code );
+      }).then(() => {
+
       })
     }))
   })
