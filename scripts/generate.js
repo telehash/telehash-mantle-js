@@ -2,9 +2,10 @@
 'use strict';
 var jetpack = require('fs-jetpack');
 var path = require("path")
-var tmp = jetpack.cwd(path.join(process.cwd()));
+var tmp = jetpack.cwd(path.join(__dirname, "..","tmp"));
 var argv = require("minimist")(process.argv);
-var spawn = require("child_process").spawn;
+var _CP = require("child_process")
+var spawn = _CP.spawn;
 var rollup = require("rollup").rollup;
 var resolve = require("rollup-plugin-node-resolve");
 var commonjs = require("rollup-plugin-commonjs");
@@ -21,6 +22,7 @@ var head = `import Core from "thc";\n`
          + `var _middlewares = {}\n`;
 
 var config = {}
+var rebuild = [];
 
 const camelCase = (str) => {
   var string = str.replace(/-([a-z])/g, (m, w) => {
@@ -31,17 +33,24 @@ const camelCase = (str) => {
 
 const installMiddleware = (type, name, platform) => new Promise((res, rej) => {
   let module_name = `telehash-${type}-${name}-${platform}`;
-  if (argv.skip){
-      addConfig(name, module_name)
-    appendToPreamble(name, module_name);  
-    return process.nextTick(() => res());
-  }
-  
-  spawn("npm",["install","--save", module_name], {stdio:"inherit"}).on('close', () => {
+  let module_inject_path = path.join("..","src",type,name,platform, "package.inject.json")
+  let module_index_path = path.join("..","src",type,name,platform, "index.js")
+  let inject = tmp.read(module_inject_path, 'json')
+  console.log(inject, module_inject_path)
+
+  let mods = inject ? inject.external ? inject.external : [] : [];
+
+  if (inject.rebuild)
+    rebuild = rebuild.concat(inject.rebuild)
+
+  let npmargs = (["install","--save"]).concat(mods);
+
+  console.log(npmargs)
+  spawn("npm",npmargs, {stdio:"inherit"}).on('close', () => {
     setTimeout(() => {
-    addConfig(name, module_name)
-    appendToPreamble(name, module_name);
-    res();
+      addConfig(name, inject)
+      appendToPreamble(name, module_index_path);
+      res();
     },5000)
 
   }).on('error',rej)
@@ -53,9 +62,8 @@ const appendToPreamble = (name, module) => {
     ground.write(`_middlewares['${cc}'] = ${cc};\n`)
 }
 
-const addConfig = (name, module_name) => {
-  console.log(name, module_name)
-  let configTemplate = tmp.read(path.join("node_modules",module_name,"package.json"), "json").ground;
+const addConfig = (name, inject) => {
+  let configTemplate = inject.config;
   config[camelCase(name)] = configTemplate || {};
 }
 
@@ -63,9 +71,7 @@ const bundleByType = (type, string) => string.split(',').map((name) => installMi
 
 const Build = () => {
   ground.write(head);
-  let promises = [new Promise((res, rej) => {
-    spawn('npm',['install','thc'],{stdio: "inherit"}).on('close',() => res())
-  })];
+  let promises = [];
   console.log(argv.transports)
   if (argv.transports) promises = promises.concat(bundleByType('transport', argv.transports))
   if (argv.channels) promises = promises.concat(bundleByType('channel',argv.channels))
@@ -82,7 +88,7 @@ const Build = () => {
 ground.on('close',() => {
   console.log("close")
   rollup({
-    entry: 'ground.js',
+    entry: tmp.path("ground.js"),
     format : 'cjs',
     plugins: [
       resolve({
@@ -105,14 +111,14 @@ ground.on('close',() => {
         // specifies alternative files to load for people bundling
         // for the browser. If that's you, use this option, otherwise
         // pkg.browser will be ignored
-        browser: true,  // Default: false
+        //browser: true,  // Default: false
 
         // not all files you want to resolve are .js files
         extensions: [ '.js', '.json', '.mem' ],  // Default: ['.js']
 
         // whether to prefer built-in modules (e.g. `fs`, `path`) or
         // local ones with the same names
-        preferBuiltins: false  // Default: true
+        //preferBuiltins: false  // Default: true
 
       }),
       commonjs(),
@@ -120,39 +126,24 @@ ground.on('close',() => {
         include : "**/*.js.mem"
       })
     ]
-  }).then( bundle => bundle.write({ dest: 'bundle.js', format: argv.format || "cjs" }) )
+  }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format: argv.format || "cjs" }) )
   .then(() => {
-    var app = jetpack.cwd(process.cwd())
-    var len = process.cwd().split(path.sep).length
-    var things =  (argv.platform === "electron" ? (['keytar','serial-worker','noble']) : ['keytar','serialport','noble']).map(k => "**/" + k + "/package.json")
-    console.log((['keytar','serial-worker','noble']).map(k => k + "/package.json"))
-    app.find(".",{matching: things, files: true, directories: false}).forEach((dir) => {
-      var src = dir.split(path.sep)
-      src.pop();
-      var name = src[src.length - 1];
-      src = src.join(path.sep);
-      var dest = path.join("node_modules",name)
-      app.copy(src, dest, {overwrite : true})
-    })
 
     if (argv.platform == 'electron'){
-      return Promise.all(app.find(".",{
-        matching : (['keytar','serialport','noble']).map(k => "**/" + k + "/package.json")
-        , files: true
-        , directories: false
-      }).map(
-        (dir) => new Promise((res, rej) => {
-          var src = dir.split(path.sep)
-          src.pop();
-          src = src.join(path.sep);
-          console.log("rebuild")
+      let chain = Promise.resolve()
+      rebuild.forEach(
+        (name) => chain = chain.then(() => new Promise((res, rej) => {
+          name = name.split(":").join(path.sep)
+          let cwd = path.join(_CP.execSync("npm root").toString().replace(/\n$/, ""), name);
+          console.log(cwd)
           spawn(
             'node-gyp'
             , ['rebuild',`--target=${argv.target}`,`--arch=x64`,`--dist-url=https://atom.io/download/atom-shell`]
-            , {stdio : 'inherit', cwd : path.join(process.cwd(), src)}
-          ).on('close', () => res())
-        })
-      ))
+            , {stdio : 'inherit', cwd : cwd}
+          ).on('close', () => res()).on('error',() => res())
+        }))
+      )
+      return chain;
     } else return Promise.resolve()
 
   }).then(() => console.log("done")).catch(e => console.log(e));

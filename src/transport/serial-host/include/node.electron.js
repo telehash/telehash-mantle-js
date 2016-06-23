@@ -51,6 +51,10 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
                   sock.on('open', (err) => {
                     Mesh[config.type](sock, config.size);
                   })
+
+                  sock.on('error', (err) => {
+                    return
+                  })
                 })
         });
       }, 2000)
