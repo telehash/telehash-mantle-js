@@ -37,9 +37,12 @@ const installMiddleware = (type, name, platform) => new Promise((res, rej) => {
   }
   
   spawn("npm",["install","--save", module_name], {stdio:"inherit"}).on('close', () => {
+    setTimeout(() => {
     addConfig(name, module_name)
     appendToPreamble(name, module_name);
     res();
+    },5000)
+
   }).on('error',rej)
 })
 
@@ -116,7 +119,7 @@ ground.on('close',() => {
         include : "**/*.js.mem"
       })
     ]
-  }).then( bundle => bundle.write({ dest: 'bundle.js', format: 'cjs' }) )
+  }).then( bundle => bundle.write({ dest: 'bundle.js', format: argv.format || "cjs" }) )
   .then(() => {
     var app = jetpack.cwd(process.cwd())
     var len = process.cwd().split(path.sep).length
