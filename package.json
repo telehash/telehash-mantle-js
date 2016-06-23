@@ -1,6 +1,6 @@
 {
   "name": "telehash-mantle-js",
-  "version": "0.0.21",
+  "version": "0.0.24",
   "description": "repository of middlewares for telehash-core",
   "main": "index.js",
   "jsnext:main": "index.es6.js",
@@ -8,6 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_PATH=. node scripts/build.js",
     "publish": "NODE_PATH=. node scripts/publish.js"
+  },
+  "bin" : {
+    "mantle" : "./scripts/generate.js"
   },
   "author": "Ryan Bennett",
   "license": "ISC",
