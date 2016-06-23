@@ -11,6 +11,7 @@ require("./build")().then(() => {
     _path.pop()
     let publishpath = _path.join(path.sep)
     _path.push("package.json")
+    console.log(_path)
     let pkg = dist.read(_path.join(path.sep),'json');
 
     try{
