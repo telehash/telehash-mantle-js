@@ -1,11 +1,5 @@
 import {SerialHost as _serialhost} from '../include/node.electron.js'
-import {SerialPort as _serialport, list} from 'serial-worker';
-
-class SerialPort extends _serialport {
-  constructor(comName, opts, cb){
-    super(comName, opts, false, cb);
-  }
-}
+import {SerialPort , list} from 'serial-worker';
 
 const SerialHost = _serialhost(SerialPort, list)
 
