@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 var jetpack = require('fs-jetpack');
 var path = require("path")
