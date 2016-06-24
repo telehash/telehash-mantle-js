@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "serial-worker": "^1.0.5"
+    "serialport": "^3.1.2"
   },
   "name": "telehash-transport-serial-host-electron-package.json",
   "version": "0.0.24",
   "scripts": {},
   "external": [
-    "serial-worker"
+    "serialport"
   ],
   "rebuild": [
     "serialport"
