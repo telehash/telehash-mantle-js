@@ -1,6 +1,6 @@
 {
   "name": "telehash-mantle",
-  "version": "0.0.25",
+  "version": "0.0.12",
   "description": "repository of middlewares for telehash-core",
   "main": "index.js",
   "jsnext:main": "index.es6.js",
