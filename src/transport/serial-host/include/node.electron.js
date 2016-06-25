@@ -24,7 +24,7 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
   var ignore = new Set();
   var opts = {};
 
-  const filterPort = (port) => !Mesh._links.has(port.serialNumber) &&  ( (opts.comName === port.comName) || (opts.vendors[port.vendorId] && opts.vendors[port.vendorId][port.productId]));
+  const filterPort = (port) => !ignore.has(port.serialNumber) &&  ( (opts.comName === port.comName) || (opts.vendors[port.vendorId] && opts.vendors[port.vendorId][port.productId]));
 
   let FRAME_SIZE = 64;
   let CHUNK_SIZE = 32;
@@ -42,6 +42,7 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
           if (err) return;
           ports.filter(filterPort)
                .forEach((port) => {
+                ignore.add(port.comName)
                   let config = opts.vendors[port.vendorId][port.productId];
                   
                   var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
@@ -55,6 +56,10 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
                   sock.on('error', (err) => {
                     console.log('error',err)
                     return;
+                  })
+
+                  sock.on('close', (err) => {
+                    ignore.delete(port.comName)
                   })
                 })
         });
