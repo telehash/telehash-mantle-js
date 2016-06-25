@@ -24,7 +24,7 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
   var ignore = new Set();
   var opts = {};
 
-  const filterPort = (port) => !ignore.has(port.serialNumber) &&  ( (opts.comName === port.comName) || (opts.vendors[port.vendorId] && opts.vendors[port.vendorId][port.productId]));
+  const filterPort = (port) => !ignore.has(port.comName) &&  ( (opts.comName === port.comName) || (opts.vendors[port.vendorId] && opts.vendors[port.vendorId][port.productId]));
 
   let FRAME_SIZE = 64;
   let CHUNK_SIZE = 32;
