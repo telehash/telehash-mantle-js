@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "keytar": "^3.0.2"
+  },
+  "version": "0.0.22",
+  "scripts": {},
+  "external": [
+    "keytar"
+  ],
+  "devDependencies": {}
+}
