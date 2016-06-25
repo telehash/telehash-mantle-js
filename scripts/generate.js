@@ -126,7 +126,7 @@ ground.on('close',() => {
         include : "**/*.js.mem"
       })
     ]
-  }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format: argv.format || "cjs" }) )
+  }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format: argv.format || "cjs", moduleName: "Ground" }) )
   .then(() => {
 
     if (argv.platform == 'electron'){
