@@ -125,6 +125,7 @@ export const BleCentral = (_opts) => (Mesh, th) => {
       if (_nobleOn) noble.startScanning();
       else noble.on('stateChange', (state) => state === "poweredOn" ? noble.startScanning() : null)
  
+      return Promise.resolve(() => noble.stopScanning())
     }
   }
 }

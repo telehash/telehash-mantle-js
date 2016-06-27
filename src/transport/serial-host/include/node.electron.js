@@ -43,27 +43,32 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
           ports.filter(filterPort)
                .forEach((port) => {
                 ignore.add(port.comName)
-                  let config = opts.vendors[port.vendorId][port.productId];
-                  
-                  var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
-                    if(err) return;
-                  });
+                  setTimeout(() => {
+                    let config = opts.vendors[port.vendorId][port.productId];
+                    
+                    var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
+                      if(err) return;
+                    });
 
-                  sock.on('open', (err) => {
-                    Mesh[config.type](sock, config.size);
-                  })
+                    sock.on('open', (err) => {
+                      Mesh[config.type](sock, config.size);
+                    })
 
-                  sock.on('error', (err) => {
-                    console.log('error',err)
-                    return;
-                  })
+                    sock.on('error', (err) => {
+                      console.log('error',err)
+                      return;
+                    })
 
-                  sock.on('close', (err) => {
-                    ignore.delete(port.comName)
-                  })
+                    sock.on('close', (err) => {
+                      ignore.delete(port.comName)
+                    })                  
+                  },7000)
+
                 })
         });
       }, 3000)
+
+      return Promise.resolve(() => clearInterval(discoverinterval))
     }
   }
 }
