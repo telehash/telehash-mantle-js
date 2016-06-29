@@ -26,6 +26,28 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
 
   const filterPort = (port) => !ignore.has(port.comName) &&  ( (opts.comName === port.comName) || (opts.vendors[port.vendorId] && opts.vendors[port.vendorId][port.productId]));
 
+  const normalize = (port) => {
+    try {
+      if (!(port.vendorId || port.productId)){
+        if (port.pnpId){
+          var parts = port.pnpId.split('\\');
+          var vidpid = parts[1];
+          var serialnum = parts[2];
+
+          var vidpidparts = vidpid.split('&');
+          var vid = vidpidparts[0].split("_")[1];
+          var pid = vidpidparts[1].split("_")[1];
+
+          port.vendorId = port.vendorId || `0x${vid.toLowerCase()}`;
+          port.productId = port.productId || `0x${pid.toLowerCase()}`;
+        }
+      }      
+    } catch (e) {
+      console.log("normalize error",e)
+    }
+    return port;
+  }
+
   let FRAME_SIZE = 64;
   let CHUNK_SIZE = 32;
 
@@ -40,29 +62,27 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
       let discoverinterval = setInterval(() => {
         list(function (err, ports) {
           if (err) return;
-          ports.filter(filterPort)
+          ports.map(normalize)
+               .filter(filterPort)
                .forEach((port) => {
                 ignore.add(port.comName)
-                  setTimeout(() => {
-                    let config = opts.vendors[port.vendorId][port.productId];
-                    
-                    var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
-                      if(err) return;
-                    });
+                  let config = opts.vendors[port.vendorId][port.productId];
+                  var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
+                    if(err) return console.log(err);
+                  });
 
-                    sock.on('open', (err) => {
-                      Mesh[config.type](sock, config.size);
-                    })
+                  sock.on('open', (err) => {
+                    Mesh[config.type](sock, config.size);
+                  });
 
-                    sock.on('error', (err) => {
-                      console.log('error',err)
-                      return;
-                    })
+                  sock.on('error', (err) => {
+                    console.log('serial error',err);
+                    return;
+                  });
 
-                    sock.on('close', (err) => {
-                      ignore.delete(port.comName)
-                    })                  
-                  },7000)
+                  sock.on('close', (err) => {
+                    ignore.delete(port.comName)
+                  }); 
 
                 })
         });
