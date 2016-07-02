@@ -10,7 +10,7 @@ export const Keytar = (opts) => (Mesh, th) => {
     name : "keytar",
     getKeys: (cb) => {
       let res = keytar.getPassword("telehash", "keys");
-      let r = res ? res.split(":") : [null, null];
+      let r = (typeof res === "string") ? res.split(":") : [null, null];
       let secret = r[0], keys = r[1]
       cb(secret, keys);
     },

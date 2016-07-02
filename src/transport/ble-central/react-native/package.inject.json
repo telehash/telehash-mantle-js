@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "react-native-ble-manager": "^0.0.14"
+  }
+}
