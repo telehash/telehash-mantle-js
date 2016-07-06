@@ -1,0 +1,18 @@
+{
+  "optionalDependencies": {
+    "keytar": "^3.0.2"
+  },
+  "dependencies": {
+    "filemode": "^2.0.1",
+    "fs-jetpack": "^0.9.2"
+  },
+  "version": "0.0.17",
+  "scripts": {},
+  "external": [
+    "keytar"
+  ],
+  "rebuild": [
+    "keytar"
+  ],
+  "devDependencies": {}
+}
