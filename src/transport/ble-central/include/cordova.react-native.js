@@ -1,6 +1,8 @@
 'use strict';
 
-import {Duplex} from 'stream';
+import * as Stream from 'stream';
+
+const Duplex = Stream.Duplex;
 
 var BLE;
 const FRAME_SIZE = 20;

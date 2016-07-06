@@ -1,3 +1,4 @@
+'use strict';
 import {Platform, NativeAppEventEmitter} from 'react-native';
 import {ImportBleWrapper} from '../include/cordova.react-native.js';
 
@@ -41,7 +42,8 @@ const wrapBle = (ble) =>
         .reduce((_ble, key) =>
           Object.assign(_ble, {
             [key] : wrapCallbackFun(ble, ble[key])
-          })
-        }, {});
+          }), {});
 
 export const BleCentral = (opts) => ImportBleWrapper(wrapBle, device, opts);
+
+export {BleCentral as default}
