@@ -10,7 +10,11 @@ var rollup = require("rollup").rollup;
 var resolve = require("rollup-plugin-node-resolve");
 var commonjs = require("rollup-plugin-commonjs");
 var string = require("rollup-plugin-string");
-
+var alias = require('rollup-plugin-alias');
+var globals = require('rollup-plugin-node-globals');
+var builtins = require('rollup-plugin-node-builtins');
+var json = require('rollup-plugin-json');
+var babel = require('rollup-plugin-babel')
 
 if (!argv.platform)
   throw new Error("required option --platform missing, e.g: --platform <node/electron/chrome/browser>")
@@ -27,7 +31,7 @@ var rebuild = [];
 const camelCase = (str) => {
   var string = str.replace(/-([a-z])/g, (m, w) => {
     return w.toUpperCase();
-  }); 
+  });
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -71,6 +75,7 @@ const bundleByType = (type, string) => string.split(',').map((name) => installMi
 
 const Build = () => {
   ground.write(head);
+
   let promises = [];
   console.log(argv.transports)
   if (argv.transports) promises = promises.concat(bundleByType('transport', argv.transports))
@@ -79,6 +84,7 @@ const Build = () => {
   if (argv.keystore) promises.push(installMiddleware('keystore', argv.keystore, argv.platform))
 
   Promise.all(promises).then(() => {
+    appendToPreamble('RNG',path.join("..","rng",`${argv.platform}.js`))
     require('fs').createReadStream(path.join(__dirname,'_ground.js')).pipe(ground);
     tmp.write('config.template.json', config);
   }).catch(e => console.log(e))
@@ -87,46 +93,50 @@ const Build = () => {
 
 ground.on('close',() => {
   console.log("close")
+  let plugins = [
+    //builtins(),
+    resolve({
+      // use "jsnext:main" if possible
+      // – see https://github.com/rollup/rollup/wiki/jsnext:main
+      jsnext: true,  // Default: false
+
+      // use "main" field or index.js, even if it's not an ES6 module
+      // (needs to be converted from CommonJS to ES6
+      // – see https://github.com/rollup/rollup-plugin-commonjs
+      main: true,  // Default: true
+
+      // if there's something your bundle requires that you DON'T
+      // want to include, add it to 'skip'. Local and relative imports
+      // can be skipped by giving the full filepath. E.g.,
+      // `path.resolve('src/relative-dependency.js')`
+      skip: [ 'keytar','serialport','noble', 'react-native','react-native-randombytes','keytar-fallback' ],  // Default: []
+
+      // some package.json files have a `browser` field which
+      // specifies alternative files to load for people bundling
+      // for the browser. If that's you, use this option, otherwise
+      // pkg.browser will be ignored
+      browser:(argv.platform === "react-native" || argv.platform === "cordova"),  // Default: false
+
+      // not all files you want to resolve are .js files
+      extensions: [ '.js', '.json'],  // Default: ['.js']
+
+      // whether to prefer built-in modules (e.g. `fs`, `path`) or
+      // local ones with the same names
+      //preferBuiltins: false  // Default: true
+
+    }),
+    commonjs({
+    //  ignoreGlobals : true
+    })
+    //globals(),
+    //json()
+  ];
+  console.log(plugins)
   rollup({
     entry: tmp.path("ground.js"),
     format : 'cjs',
-    plugins: [
-      resolve({
-        // use "jsnext:main" if possible
-        // – see https://github.com/rollup/rollup/wiki/jsnext:main
-        jsnext: true,  // Default: false
-
-        // use "main" field or index.js, even if it's not an ES6 module
-        // (needs to be converted from CommonJS to ES6
-        // – see https://github.com/rollup/rollup-plugin-commonjs
-        main: true,  // Default: true
-
-        // if there's something your bundle requires that you DON'T
-        // want to include, add it to 'skip'. Local and relative imports
-        // can be skipped by giving the full filepath. E.g., 
-        // `path.resolve('src/relative-dependency.js')`
-        skip: [ 'keytar','serialport','noble', 'serial-worker' ],  // Default: []
-
-        // some package.json files have a `browser` field which
-        // specifies alternative files to load for people bundling
-        // for the browser. If that's you, use this option, otherwise
-        // pkg.browser will be ignored
-        //browser: true,  // Default: false
-
-        // not all files you want to resolve are .js files
-        extensions: [ '.js', '.json', '.mem' ],  // Default: ['.js']
-
-        // whether to prefer built-in modules (e.g. `fs`, `path`) or
-        // local ones with the same names
-        //preferBuiltins: false  // Default: true
-
-      }),
-      commonjs(),
-      string({
-        include : "**/*.js.mem"
-      })
-    ]
-  }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format: argv.format || "cjs", moduleName: "Ground" }) )
+    plugins: plugins
+  }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format:argv.format || "es", moduleName: "Ground" }) )
   .then(() => {
 
     if (argv.platform == 'electron'){
@@ -151,5 +161,3 @@ ground.on('close',() => {
 
 
 Build();
-
-

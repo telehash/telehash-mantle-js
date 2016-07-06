@@ -1,15 +1,11 @@
 {
-  "optionalDependencies": {
-    "keytar": "^3.0.2"
-  },
   "dependencies": {
-    "filemode": "^2.0.1",
-    "fs-jetpack": "^0.9.2"
+    "keytar-fallback": "^1.0.0"
   },
   "version": "0.0.22",
   "scripts": {},
   "external": [
-    "keytar"
+    "keytar-fallback"
   ],
   "devDependencies": {}
 }

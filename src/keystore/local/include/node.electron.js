@@ -1,24 +1,4 @@
-try {
-  var keytar = require('keytar');
-} catch (e){
-  var fs = require('fs-jetpack');
-  var homedir = require('os').homedir();
-  var path = require('path');
-  var filemode = require('filemode')
-
-  function makepath
-  var keytar = {
-    getPassword : (app, id ) => {
-      var dir = fs.cwd(path.join(homedir, `.${app}`));
-      return dir.read(id).toString();
-    },
-    addPassword : (app, id, pass) => {
-      var dir = fs.cwd(path.join(homedir, `.${app}`));
-      dir.write(id, pass);
-      return filemode(dir.path(id), '400');
-    }
-  }
-}
+import keytar from 'keytar-fallback'
 
 export const Keytar = (opts) => (Mesh, th) => {
   let mesh = Mesh._mesh;
