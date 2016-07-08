@@ -1,4 +1,5 @@
 'use strict';
+import SerialPort from 'serialport';
 
 const defaultOpts = {
   vendors : {
@@ -16,10 +17,7 @@ const defaultOpts = {
 };
 
 
-
-
-
-export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
+export const SerialHost = (opts) => (Mesh, th) => {
   let mesh = Mesh._mesh;
   var ignore = new Set();
   var opts = {};
@@ -41,7 +39,7 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
           port.vendorId = port.vendorId || `0x${vid.toLowerCase()}`;
           port.productId = port.productId || `0x${pid.toLowerCase()}`;
         }
-      }      
+      }
     } catch (e) {
       console.log("normalize error",e)
     }
@@ -57,17 +55,19 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
     name : "serial-host",
     listen : (_opts) => {
       opts = Object.assign(opts ,defaultOpts, _opts || {});
-      
+
       //return;
       let discoverinterval = setInterval(() => {
-        list(function (err, ports) {
+        SerialPort.list(function (err, ports) {
+          //console.log("ports",ports);
           if (err) return;
           ports.map(normalize)
                .filter(filterPort)
                .forEach((port) => {
+                 console.log("connecting",port);
                 ignore.add(port.comName)
                   let config = opts.vendors[port.vendorId][port.productId];
-                  var sock = new SerialPort(port.comName,{baudrate: 115200}, function(err){
+                  var sock = new SerialPort.SerialPort(port.comName,{baudrate: 115200}, function(err){
                     if(err) return console.log(err);
                   });
 
@@ -82,7 +82,7 @@ export const SerialHost = (SerialPort, list) => (opts) => (Mesh, th) => {
 
                   sock.on('close', (err) => {
                     ignore.delete(port.comName)
-                  }); 
+                  });
 
                 })
         });
