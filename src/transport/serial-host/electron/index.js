@@ -1,6 +1,2 @@
-import {SerialHost as _serialhost} from '../include/node.electron.js'
-import {SerialPort , list} from 'serialport';
-
-const SerialHost = _serialhost(SerialPort, list)
-
+import {SerialHost } from '../include/node.electron.js';
 export {SerialHost as default};
