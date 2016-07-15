@@ -2,13 +2,10 @@
   "dependencies": {
     "keytar-fallback": "^1.0.1"
   },
-  "version": "0.0.17",
+  "version": "0.0.18",
   "scripts": {},
   "external": [
-    "keytar"
-  ],
-  "rebuild": [
-    "keytar"
+    "keytar-fallback"
   ],
   "devDependencies": {}
 }
