@@ -78,8 +78,8 @@ function DO(){
           })
           dist.write( p.substr(0, p.length - 3) + ".es6.js", es6.code )
           dist.write( p, result.code );
-      }).then(() => {
-
+      }).catch((e) => {
+        console.log(e)
       })
     }))
   })
@@ -97,5 +97,3 @@ if (require.main === module) {
     console.log('required as a module');
     module.exports = DO;
 }
-
-
