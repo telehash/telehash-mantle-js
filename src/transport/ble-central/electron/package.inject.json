@@ -2,7 +2,7 @@
   "dependencies": {
     "noble": "^1.6.0"
   },
-  "version": "0.0.25",
+  "version": "0.0.26",
   "scripts": {},
   "external": [
     "noble"
