@@ -26,8 +26,7 @@ if (argv.platform == "electron" && !argv.target) {
 
 var ground = tmp.createWriteStream("./ground.js");
 
-var head = `import Core from "thc";\n`
-         + `var _middlewares = {}\n`;
+var head = `import Core from "thc";\n` + `var _middlewares = {}\n`;
 
 var config = {};
 var rebuild = [];
@@ -120,7 +119,7 @@ ground.on('close', () => {
       // specifies alternative files to load for people bundling
       // for the browser. If that's you, use this option, otherwise
       // pkg.browser will be ignored
-      browser:(argv.platform === "react-native" || argv.platform === "cordova"),  // Default: false
+      browser: (argv.platform === "react-native" || argv.platform === "cordova"),  // Default: false
 
       // not all files you want to resolve are .js files
       extensions: [ '.js', '.json'],  // Default: ['.js']
@@ -151,9 +150,9 @@ ground.on('close', () => {
           let cwd = path.join(_CP.execSync("npm root").toString().replace(/\n$/, ""), name);
           console.log(cwd);
           spawn(
-            'node-gyp'
-            , ['rebuild',`--target=${argv.target}`,`--arch=x64`,`--dist-url=https://atom.io/download/atom-shell`]
-            , {stdio : 'inherit', cwd : cwd}
+            'node-gyp',
+            ['rebuild',`--target=${argv.target}`,`--arch=x64`,`--dist-url=https://atom.io/download/atom-shell`],
+            {stdio : 'inherit', cwd : cwd}
           ).on('close', () => res()).on('error',() => res());
         }))
       );
