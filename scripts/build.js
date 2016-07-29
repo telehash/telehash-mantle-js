@@ -69,16 +69,16 @@ function DO(){
         entry: src.path(p),
         cache : bundle
       }).then((b) => {
-          bundle = b;
-          var result = bundle.generate({
-            // output format - 'amd', 'cjs', 'es6', 'iife', 'umd'
-            format: 'cjs'
-          });
-          var es6 = bundle.generate({
-            format: 'es'
-          });
-          dist.write( p.substr(0, p.length - 3) + ".es6.js", es6.code );
-          dist.write( p, result.code );
+        bundle = b;
+        var result = bundle.generate({
+          // output format - 'amd', 'cjs', 'es6', 'iife', 'umd'
+          format: 'cjs'
+        });
+        var es6 = bundle.generate({
+          format: 'es'
+        });
+        dist.write( p.substr(0, p.length - 3) + ".es6.js", es6.code );
+        dist.write( p, result.code );
       }).catch((e) => {
         console.log(e);
       });
@@ -92,9 +92,9 @@ function watch(){
   });
 }
 if (require.main === module) {
-    console.log('called directly');
-    DO().then(watch).catch(e => console.log(e));
+  console.log('called directly');
+  DO().then(watch).catch(e => console.log(e));
 } else {
-    console.log('required as a module');
-    module.exports = DO;
+  console.log('required as a module');
+  module.exports = DO;
 }

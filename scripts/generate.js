@@ -66,9 +66,9 @@ const installMiddleware = (type, name, platform) => new Promise((res, rej) => {
 });
 
 const appendToPreamble = (name, module) => {
-    let cc = camelCase(name);
-    ground.write(`import  ${cc}  from '${module}';\n`);
-    ground.write(`_middlewares['${cc}'] = ${cc};\n`);
+  let cc = camelCase(name);
+  ground.write(`import  ${cc}  from '${module}';\n`);
+  ground.write(`_middlewares['${cc}'] = ${cc};\n`);
 };
 
 const addConfig = (name, inject) => {
@@ -131,7 +131,7 @@ ground.on('close', () => {
 
     }),
     commonjs({
-    //  ignoreGlobals : true
+      //  ignoreGlobals : true
     })
     //globals(),
     //json()
@@ -143,7 +143,6 @@ ground.on('close', () => {
     plugins: plugins
   }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format:argv.format || "es", moduleName: "Ground" }) )
   .then(() => {
-
     if (argv.platform == 'electron') {
       let chain = Promise.resolve();
       rebuild.forEach(
