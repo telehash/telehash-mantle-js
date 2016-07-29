@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 'use strict';
+
 var jetpack = require('fs-jetpack');
 var path = require("path");
 var tmp = jetpack.cwd(path.join(__dirname, "..","tmp"));
@@ -163,6 +164,5 @@ ground.on('close', () => {
 
   }).then(() => console.log("done")).catch(e => console.log(e));
 });
-
 
 Build();
