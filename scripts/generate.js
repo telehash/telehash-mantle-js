@@ -16,10 +16,13 @@ var builtins = require('rollup-plugin-node-builtins');
 var json = require('rollup-plugin-json');
 var babel = require('rollup-plugin-babel');
 
-if (!argv.platform)
+if (!argv.platform) {
   throw new Error("required option --platform missing, e.g: --platform <node/electron/chrome/browser>");
+}
 
-if (argv.platform == "electron" && !argv.target) throw new Error("must provide electron version");
+if (argv.platform == "electron" && !argv.target) {
+  throw new Error("must provide electron version");
+}
 
 var ground = tmp.createWriteStream("./ground.js");
 
@@ -33,6 +36,7 @@ const camelCase = (str) => {
   var string = str.replace(/-([a-z])/g, (m, w) => {
     return w.toUpperCase();
   });
+
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
@@ -45,8 +49,9 @@ const installMiddleware = (type, name, platform) => new Promise((res, rej) => {
 
   let mods = inject ? inject.external ? inject.external : [] : [];
 
-  if (inject.rebuild)
+  if (inject.rebuild) {
     rebuild = rebuild.concat(inject.rebuild);
+  }
 
   let npmargs = (["install","--save"]).concat(mods);
 
@@ -57,7 +62,6 @@ const installMiddleware = (type, name, platform) => new Promise((res, rej) => {
       appendToPreamble(name, module_index_path);
       res();
     },5000);
-
   }).on('error',rej);
 });
 
@@ -79,10 +83,10 @@ const Build = () => {
 
   let promises = [];
   console.log(argv.transports);
-  if (argv.transports) promises = promises.concat(bundleByType('transport', argv.transports));
-  if (argv.channels) promises = promises.concat(bundleByType('channel',argv.channels));
+  if (argv.transports) { promises = promises.concat(bundleByType('transport', argv.transports)); }
+  if (argv.channels) { promises = promises.concat(bundleByType('channel',argv.channels)); }
 
-  if (argv.keystore) promises.push(installMiddleware('keystore', argv.keystore, argv.platform));
+  if (argv.keystore) { promises.push(installMiddleware('keystore', argv.keystore, argv.platform)); }
 
   Promise.all(promises).then(() => {
     appendToPreamble('RNG',path.join("..","rng",`${argv.platform}.js`));
@@ -92,7 +96,7 @@ const Build = () => {
 
 };
 
-ground.on('close',() => {
+ground.on('close', () => {
   console.log("close");
   let plugins = [
     //builtins(),
@@ -140,7 +144,7 @@ ground.on('close',() => {
   }).then( bundle => bundle.write({ dest: argv.o || 'ground.js', format:argv.format || "es", moduleName: "Ground" }) )
   .then(() => {
 
-    if (argv.platform == 'electron'){
+    if (argv.platform == 'electron') {
       let chain = Promise.resolve();
       rebuild.forEach(
         (name) => chain = chain.then(() => new Promise((res, rej) => {
@@ -155,7 +159,9 @@ ground.on('close',() => {
         }))
       );
       return chain;
-    } else return Promise.resolve();
+    } else {
+      return Promise.resolve();
+    }
 
   }).then(() => console.log("done")).catch(e => console.log(e));
 });
