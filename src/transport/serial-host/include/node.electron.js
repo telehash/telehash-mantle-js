@@ -80,6 +80,7 @@ export const SerialHost = (opts) => (Mesh, th) => {
                   });
 
                   sock.on('error', (err) => {
+                    ignore.delete(port.comName)
                     return;
                   });
 
