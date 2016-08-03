@@ -93,7 +93,7 @@ function watch(){
 }
 if (require.main === module) {
   console.log('called directly');
-  DO().then(watch).catch(e => console.log(e));
+  DO().catch(e => console.log(e));
 } else {
   console.log('required as a module');
   module.exports = DO;
