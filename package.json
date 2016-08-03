@@ -24,9 +24,6 @@
     "rollup": "^0.31.2",
     "serialport": "^3.1.2"
   },
-  "optionalDependencies": {
-    "keytar": "^3.0.2"
-  },
   "dependencies": {
     "babel-preset-es2015-rollup": "^1.1.1",
     "fs-jetpack": "^0.9.1",
