@@ -3,7 +3,7 @@
     "serialport": "^4.0.1"
   },
   "name": "telehash-transport-serial-host-electron",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "scripts": {},
   "external": [
     "serialport"

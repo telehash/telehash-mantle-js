@@ -3,7 +3,7 @@
     "serialport": "^4.0.1"
   },
   "name": "telehash-transport-serial-host-node-package.json",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "scripts": {},
   "external": [
     "serialport"
